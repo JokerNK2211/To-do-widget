@@ -1,5 +1,5 @@
 :root {
-  --bg: rgba(255, 255, 255, 0.92);
+  --bg: #ffffff;
   --fg: #1f2328;
   --muted: #6b7280;
   --line: rgba(0, 0, 0, 0.08);
@@ -11,7 +11,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: rgba(28, 30, 34, 0.92);
+    --bg: #1c1e22;
     --fg: #e5e7eb;
     --muted: #9ca3af;
     --line: rgba(255, 255, 255, 0.1);
@@ -36,7 +36,6 @@ body {
   border-radius: 14px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   overflow: hidden;
-  backdrop-filter: blur(12px);
 }
 .drag { -webkit-app-region: drag; }
 .no-drag, button, input, a { -webkit-app-region: no-drag; }
