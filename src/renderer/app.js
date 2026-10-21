@@ -153,13 +153,30 @@ $('btn-add-account').onclick = () => signIn('', $('btn-add-account'));
 $('btn-sync').onclick = () => window.todo.sync();
 $('btn-quit').onclick = () => window.todo.quit();
 $('btn-clear').onclick = () => window.todo.clearDone();
+function openNewTask() {
+  $('add-title').value = '';
+  $('add-due').value = '';
+  $('new-task').classList.remove('hidden');
+  $('add-title').focus();
+}
+
+function closeNewTask() {
+  $('new-task').classList.add('hidden');
+}
+
+$('btn-new').onclick = openNewTask;
+$('btn-cancel-new').onclick = closeNewTask;
+// Clicking the dimmed area outside the box closes it.
+$('new-task').onclick = (e) => { if (e.target === $('new-task')) closeNewTask(); };
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeNewTask();
+});
 $('add').onsubmit = async (e) => {
   e.preventDefault();
   const title = $('add-title').value.trim();
   if (!title) return;
   await window.todo.addTask({ title, due: $('add-due').value || null });
-  $('add-title').value = '';
-  $('add-due').value = '';
+  closeNewTask();
 };
 
 window.todo.onState(render);

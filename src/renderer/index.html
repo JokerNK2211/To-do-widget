@@ -53,12 +53,25 @@
     <main id="list"></main>
 
     <footer>
-      <form id="add" class="no-drag">
-        <input id="add-title" type="text" placeholder="+ เพิ่มงาน" autocomplete="off">
-        <input id="add-due" type="date" title="วันครบกำหนด">
-      </form>
+      <button id="btn-new" class="fab" title="เพิ่มงานใหม่">+</button>
       <button id="btn-clear" class="link">ล้างงานที่เสร็จแล้ว</button>
     </footer>
+
+    <div id="new-task" class="overlay hidden">
+      <form id="add" class="dialog no-drag">
+        <h2>งานใหม่</h2>
+        <label>ชื่องาน
+          <input id="add-title" type="text" placeholder="ต้องทำอะไร" autocomplete="off" required>
+        </label>
+        <label>วันครบกำหนด (ไม่ใส่ก็ได้)
+          <input id="add-due" type="date">
+        </label>
+        <div class="row end">
+          <button type="button" id="btn-cancel-new">ยกเลิก</button>
+          <button type="submit" class="primary">เพิ่มงาน</button>
+        </div>
+      </form>
+    </div>
   </div>
   <script src="app.js"></script>
 </body>
