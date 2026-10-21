@@ -25,7 +25,7 @@ html, body { margin: 0; height: 100%; background: transparent; }
 body {
   font: 13px/1.4 system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", "Leelawadee UI", sans-serif;
   color: var(--fg);
-  padding: 6px;
+  padding: 8px;
 }
 .card {
   height: 100%;
@@ -34,7 +34,8 @@ body {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  /* Keep the shadow inside the body padding so the window edge never clips it. */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   overflow: hidden;
 }
 .drag { -webkit-app-region: drag; }
