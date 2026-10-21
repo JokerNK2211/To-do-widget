@@ -19,7 +19,7 @@ A small always-on-top desktop widget (Electron) that turns Google Calendar event
 
 ## ติดตั้งบน Windows / Install on Windows
 
-1. ดับเบิลคลิก `To-do Widget Setup 0.1.1.exe` (ถ้า Windows ขึ้นหน้าจอ SmartScreen เพราะตัวติดตั้งยังไม่ได้ลงลายเซ็น ให้กด **More info → Run anyway**)
+1. ดับเบิลคลิก `To-do Widget Setup 0.1.2.exe` (ถ้า Windows ขึ้นหน้าจอ SmartScreen เพราะตัวติดตั้งยังไม่ได้ลงลายเซ็น ให้กด **More info → Run anyway**)
 2. วิดเจ็ตจะเปิดที่มุมขวาบนของจอ และเปิดเองทุกครั้งที่เข้าเครื่อง (ปิดได้ใน ⚙)
 3. กด **เลือกไฟล์ credentials.json…** แล้วเลือกไฟล์ที่ดาวน์โหลดจาก Google Cloud (ดูหัวข้อด้านล่าง)
 4. กดเข้าสู่ระบบทีละบัญชี

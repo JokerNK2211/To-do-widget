@@ -89,7 +89,7 @@ button.primary {
   border-radius: 8px; padding: 6px 12px; font: inherit; cursor: pointer;
 }
 
-#add { display: flex; gap: 6px; padding: 0 12px 8px; }
+#add { display: flex; gap: 6px; padding-bottom: 6px; }
 #add-title { flex: 1; min-width: 0; }
 #add-due { width: 118px; }
 
