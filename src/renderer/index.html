@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'">
+  <title>To-do</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card">
+    <header class="drag">
+      <div>
+        <h1>สิ่งที่ต้องทำ</h1>
+        <div id="status" class="muted"></div>
+      </div>
+      <div class="actions no-drag">
+        <button id="btn-sync" title="ซิงก์ / Sync">⟳</button>
+        <button id="btn-settings" title="ตั้งค่า / Settings">⚙</button>
+        <button id="btn-quit" title="ปิด / Quit">✕</button>
+      </div>
+    </header>
+
+    <section id="signin" class="panel hidden">
+      <p>เชื่อมต่อ Google เพื่อดึงนัดหมายจากปฏิทินและอีเมลมาเป็นงาน</p>
+      <p id="no-creds" class="muted hidden">
+        ยังไม่พบไฟล์ credentials.json ดูวิธีตั้งค่าใน README<br>
+        <code id="creds-path"></code>
+      </p>
+      <button id="btn-signin" class="primary">เข้าสู่ระบบด้วย Google</button>
+    </section>
+
+    <section id="settings" class="panel hidden">
+      <label>บัญชี Google ที่ต้องการใช้
+        <input id="set-account" type="email" placeholder="you@example.com">
+      </label>
+      <label>คำค้น Gmail ที่นับเป็นงาน
+        <input id="set-query" type="text">
+      </label>
+      <label>ปฏิทิน (คั่นด้วย ,)
+        <input id="set-calendars" type="text">
+      </label>
+      <label>ดูล่วงหน้า (วัน)
+        <input id="set-days" type="number" min="1" max="60">
+      </label>
+      <label class="row"><input id="set-ontop" type="checkbox"> แสดงอยู่บนสุดเสมอ</label>
+      <div class="row">
+        <button id="btn-save" class="primary">บันทึก</button>
+        <button id="btn-signout">ออกจากระบบ</button>
+      </div>
+    </section>
+
+    <form id="add" class="no-drag">
+      <input id="add-title" type="text" placeholder="+ เพิ่มงาน" autocomplete="off">
+      <input id="add-due" type="date" title="วันครบกำหนด">
+    </form>
+
+    <main id="list"></main>
+
+    <footer>
+      <button id="btn-clear" class="link">ล้างงานที่เสร็จแล้ว</button>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
