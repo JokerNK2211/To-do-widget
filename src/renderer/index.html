@@ -21,18 +21,19 @@
     </header>
 
     <section id="signin" class="panel hidden">
-      <p>เชื่อมต่อ Google เพื่อดึงนัดหมายจากปฏิทินและอีเมลมาเป็นงาน</p>
+      <p>เชื่อมต่อบัญชี Google เพื่อดึงนัดหมายจากปฏิทินและอีเมลมาเป็นงาน</p>
       <p id="no-creds" class="muted hidden">
         ยังไม่พบไฟล์ credentials.json ดูวิธีตั้งค่าใน README<br>
         <code id="creds-path"></code>
       </p>
-      <button id="btn-signin" class="primary">เข้าสู่ระบบด้วย Google</button>
+      <div id="signin-buttons" class="stack"></div>
     </section>
 
     <section id="settings" class="panel hidden">
-      <label>บัญชี Google ที่ต้องการใช้
-        <input id="set-account" type="email" placeholder="you@example.com">
-      </label>
+      <div class="field">บัญชี Google
+        <div id="account-list" class="stack"></div>
+        <button id="btn-add-account">+ เพิ่มบัญชี</button>
+      </div>
       <label>คำค้น Gmail ที่นับเป็นงาน
         <input id="set-query" type="text">
       </label>
@@ -45,7 +46,6 @@
       <label class="row"><input id="set-ontop" type="checkbox"> แสดงอยู่บนสุดเสมอ</label>
       <div class="row">
         <button id="btn-save" class="primary">บันทึก</button>
-        <button id="btn-signout">ออกจากระบบ</button>
       </div>
     </section>
 

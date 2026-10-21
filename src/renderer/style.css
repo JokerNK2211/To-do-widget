@@ -66,6 +66,13 @@ h1 { font-size: 16px; margin: 0; }
   gap: 8px;
 }
 .panel p { margin: 0; }
+.panel .field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.stack { display: flex; flex-direction: column; gap: 4px; }
+.account { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.account .email { word-break: break-all; }
+.account .err { color: var(--overdue); font-size: 11px; }
+.panel .account button { padding: 2px 8px; font-size: 11px; }
+.tag { border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-size: 10px; }
 .panel label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
 .panel label.row, .row { flex-direction: row; display: flex; gap: 8px; align-items: center; }
 code { font-size: 10px; word-break: break-all; }

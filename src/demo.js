@@ -34,7 +34,21 @@ function data() {
       payload: { headers: [{ name: 'Subject', value: 'Invoice #1042 due next week' }, { name: 'From', value: 'billing@example.com' }] },
     },
   ];
-  return { calendar: events.map(eventToTask), gmail: messages.map(messageToTask) };
+  // Split across two accounts to show items from both merged into one list.
+  const work = 'nakorn@the-annapolis.com';
+  const personal = 'joke.nakorn22@gmail.com';
+  return [
+    {
+      email: work,
+      calendar: events.slice(0, 2).map((e) => eventToTask(e, work)),
+      gmail: messages.slice(0, 1).map((m) => messageToTask(m, work)),
+    },
+    {
+      email: personal,
+      calendar: events.slice(2).map((e) => eventToTask(e, personal)),
+      gmail: messages.slice(1).map((m) => messageToTask(m, personal)),
+    },
+  ];
 }
 
 module.exports = { data };

@@ -3,8 +3,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('todo', {
   getState: () => ipcRenderer.invoke('get-state'),
   onState: (fn) => ipcRenderer.on('state', (_e, s) => fn(s)),
-  signIn: () => ipcRenderer.invoke('sign-in'),
-  signOut: () => ipcRenderer.invoke('sign-out'),
+  signIn: (hint) => ipcRenderer.invoke('sign-in', hint),
+  signOut: (email) => ipcRenderer.invoke('sign-out', email),
   sync: () => ipcRenderer.invoke('sync'),
   toggleDone: (id) => ipcRenderer.invoke('toggle-done', id),
   addTask: (task) => ipcRenderer.invoke('add-task', task),

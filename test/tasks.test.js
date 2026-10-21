@@ -3,10 +3,14 @@ const assert = require('node:assert');
 const { eventToTask, messageToTask, mergeTasks, bucket, senderName } = require('../src/tasks');
 
 test('timed calendar event becomes a dated task', () => {
-  const t = eventToTask({ id: 'a', summary: 'Standup', start: { dateTime: '2026-10-21T10:00:00+07:00' }, location: 'Meet', htmlLink: 'https://x' });
+  const t = eventToTask(
+    { id: 'a', summary: 'Standup', start: { dateTime: '2026-10-21T10:00:00+07:00' }, location: 'Meet', htmlLink: 'https://x/event?eid=1' },
+    'me@work.com',
+  );
   assert.deepStrictEqual(t, {
-    id: 'cal:a', source: 'calendar', title: 'Standup', due: '2026-10-21T10:00:00+07:00',
-    allDay: false, detail: 'Meet', link: 'https://x',
+    id: 'cal:me@work.com:a', source: 'calendar', account: 'me@work.com', title: 'Standup',
+    due: '2026-10-21T10:00:00+07:00', allDay: false, detail: 'Meet',
+    link: 'https://x/event?eid=1&authuser=me%40work.com',
   });
 });
 
@@ -23,12 +27,21 @@ test('gmail message becomes an undated task keyed by thread', () => {
   const t = messageToTask({
     id: 'm1', threadId: 't9', internalDate: '1761000000000',
     payload: { headers: [{ name: 'Subject', value: 'Please review' }, { name: 'From', value: '"Jane Doe" <jane@x.com>' }] },
-  });
-  assert.strictEqual(t.id, 'mail:t9');
+  }, 'me@gmail.com');
+  assert.strictEqual(t.id, 'mail:me@gmail.com:t9');
+  assert.strictEqual(t.account, 'me@gmail.com');
+  assert.match(t.link, /authuser=me%40gmail\.com/);
   assert.strictEqual(t.title, 'Please review');
   assert.strictEqual(t.detail, 'Jane Doe');
   assert.strictEqual(t.due, null);
   assert.match(t.link, /#all\/t9$/);
+});
+
+test('the same event in two accounts stays two separate items', () => {
+  const event = { id: 'shared', summary: 'Meeting', start: { dateTime: '2026-10-21T10:00:00Z' } };
+  const out = mergeTasks({ calendar: [eventToTask(event, 'a@x.com'), eventToTask(event, 'b@y.com')], done: { 'cal:a@x.com:shared': 'x' } });
+  assert.strictEqual(out.length, 2);
+  assert.deepStrictEqual(out.map((t) => [t.account, t.done]), [['b@y.com', false], ['a@x.com', true]]);
 });
 
 test('senderName handles bare addresses', () => {

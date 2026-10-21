@@ -3,19 +3,22 @@
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function eventToTask(event) {
+// `account` is the Google email the item came from. It is part of the id so
+// the same event shared across two accounts stays two independent items.
+function eventToTask(event, account = '') {
   const start = event.start || {};
   const allDay = Boolean(start.date && !start.dateTime);
   // All-day events come as YYYY-MM-DD; treat them as local midnight.
   const due = start.dateTime || (start.date ? `${start.date}T00:00:00` : null);
   return {
-    id: `cal:${event.id}`,
+    id: `cal:${account}:${event.id}`,
     source: 'calendar',
+    account,
     title: event.summary || '(ไม่มีชื่อ / No title)',
     due,
     allDay,
     detail: event.location || '',
-    link: event.htmlLink || null,
+    link: event.htmlLink ? withAuthUser(event.htmlLink, account) : null,
   };
 }
 
@@ -31,18 +34,24 @@ function senderName(from) {
   return (m && m[1]) || from.trim();
 }
 
-function messageToTask(message) {
+function withAuthUser(link, account) {
+  if (!account) return link;
+  return `${link}${link.includes('?') ? '&' : '?'}authuser=${encodeURIComponent(account)}`;
+}
+
+function messageToTask(message, account = '') {
   const from = header(message, 'From');
   const received = message.internalDate ? new Date(Number(message.internalDate)).toISOString() : null;
   return {
-    id: `mail:${message.threadId || message.id}`,
+    id: `mail:${account}:${message.threadId || message.id}`,
     source: 'gmail',
+    account,
     title: header(message, 'Subject') || '(ไม่มีหัวข้อ / No subject)',
     due: null,
     received,
     allDay: false,
     detail: from ? senderName(from) : '',
-    link: `https://mail.google.com/mail/u/0/#all/${message.threadId || message.id}`,
+    link: `https://mail.google.com/mail/u/?authuser=${encodeURIComponent(account)}#all/${message.threadId || message.id}`,
   };
 }
 

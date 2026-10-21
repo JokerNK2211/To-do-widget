@@ -12,6 +12,7 @@ A small always-on-top desktop widget (Electron) that turns Google Calendar event
 - งานจาก **อีเมล**: อีเมลที่ติดดาว หรือยังไม่อ่านในกล่องจดหมายภายใน 7 วัน (ปรับคำค้น Gmail ได้)
 - **เพิ่มงานเอง** พร้อมวันครบกำหนด
 - จัดกลุ่ม: เลยกำหนด / วันนี้ / พรุ่งนี้ / ถัดไป / จากอีเมล
+- **หลายบัญชี Google**: รวมงานจากทุกบัญชีไว้ในรายการเดียว (ค่าเริ่มต้น: `nakorn@the-annapolis.com` และ `joke.nakorn22@gmail.com`) แต่ละรายการมีป้ายบอกว่ามาจากบัญชีไหน
 - ติ๊กเสร็จ, ซ่อนรายการ, เปิดต้นฉบับใน Calendar/Gmail
 - ซิงก์อัตโนมัติทุก 10 นาที, แสดงอยู่บนสุดเสมอ (ปิดได้)
 - อ่านข้อมูล Google แบบ read-only เท่านั้น ไม่แก้ไขปฏิทินหรืออีเมล
@@ -29,19 +30,20 @@ The app signs in with your own Google Cloud OAuth client, so your data goes stra
 
 1. Open [Google Cloud Console](https://console.cloud.google.com/) and create a project.
 2. **APIs & Services → Library**: enable **Google Calendar API** and **Gmail API**.
-3. **APIs & Services → OAuth consent screen**: choose *External* (or *Internal* for a Workspace domain such as `the-annapolis.com`), fill in the app name, and add your email under **Test users**.
+3. **APIs & Services → OAuth consent screen**: choose *External* (so both the Workspace and the Gmail account can sign in), fill in the app name, and add every account you will use under **Test users**.
 4. **APIs & Services → Credentials → Create credentials → OAuth client ID**, application type **Desktop app**. Download the JSON.
 5. Save it as `credentials.json` in this folder (or in the app's user-data folder; the widget shows the exact path).
-6. `npm start`, click **เข้าสู่ระบบด้วย Google**, and pick your account.
+6. `npm start`. The widget shows a **เข้าสู่ระบบ …** button for each account in the list; click each one and approve in the browser.
 
-In ⚙ settings you can set the Google account you expect (e.g. `nakorn@the-annapolis.com`). It is used as the sign-in hint, and the widget warns if you signed in with a different account.
+Every signed-in account is synced and merged into one list. Add more accounts with **+ เพิ่มบัญชี** in ⚙ settings, or remove one with **ออก**. If one account fails to sync, its last items stay and the others keep working.
 
 ### Settings
 
 | Setting | Default |
 | --- | --- |
+| Accounts | `nakorn@the-annapolis.com`, `joke.nakorn22@gmail.com` |
 | Gmail query | `in:inbox (is:starred OR (is:unread newer_than:7d))` |
-| Calendars | `primary` (comma-separated calendar IDs) |
+| Calendars | `primary` (comma-separated calendar IDs, applied to every account) |
 | Days ahead | 7 |
 | Always on top | on |
 

@@ -10,6 +10,7 @@ const GROUPS = [
 const SOURCE_LABEL = { calendar: 'ปฏิทิน', gmail: 'อีเมล', manual: 'เพิ่มเอง' };
 
 let current = null;
+let showTags = false;
 
 function fmtTime(task) {
   if (!task.due) return '';
@@ -31,6 +32,23 @@ function el(tag, attrs = {}, ...children) {
   return node;
 }
 
+// Short label for an account, e.g. "the-annapolis" or "gmail".
+function accountTag(email) {
+  const domain = (email || '').split('@')[1] || '';
+  return domain.split('.')[0];
+}
+
+async function signIn(hint, button) {
+  if (button) button.disabled = true;
+  try {
+    await window.todo.signIn(hint);
+  } catch (err) {
+    $('status').textContent = `เข้าสู่ระบบไม่สำเร็จ: ${err.message}`;
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 function renderTask(t) {
   const box = el('input', { type: 'checkbox', onchange: () => window.todo.toggleDone(t.id) });
   box.checked = t.done;
@@ -44,27 +62,35 @@ function renderTask(t) {
       el('div', { class: 'title' }, t.title),
       el('div', { class: 'meta' },
         el('span', { class: `dot ${t.source}`, title: SOURCE_LABEL[t.source] }),
-        metaBits || SOURCE_LABEL[t.source])),
+        metaBits || SOURCE_LABEL[t.source],
+        showTags && t.account ? el('span', { class: 'tag', title: t.account }, accountTag(t.account)) : null)),
     side);
 }
 
 function render(s) {
   current = s;
-  const needsSignIn = !s.signedIn;
-  $('signin').classList.toggle('hidden', !needsSignIn);
+  showTags = s.accounts.length > 1;
+  // Offer a sign-in button for each wanted account that isn't connected yet.
+  const pending = s.demo ? [] : s.pending;
+  $('signin').classList.toggle('hidden', s.signedIn && !pending.length);
   $('no-creds').classList.toggle('hidden', s.hasCredentials);
   $('creds-path').textContent = s.credentialsPath;
-  $('btn-signin').disabled = !s.hasCredentials;
+  const buttons = pending.length ? pending : [''];
+  $('signin-buttons').replaceChildren(...buttons.map((email) => {
+    const b = el('button', { class: 'primary' }, email ? `เข้าสู่ระบบ ${email}` : 'เข้าสู่ระบบด้วย Google');
+    b.disabled = !s.hasCredentials;
+    b.onclick = () => signIn(email, b);
+    return b;
+  }));
 
   const parts = [];
   if (s.demo) parts.push('โหมดตัวอย่าง');
-  else if (s.email) parts.push(s.email);
+  if (s.accounts.length) parts.push(`${s.accounts.length} บัญชี`);
   if (s.syncedAt) parts.push(`ซิงก์ ${new Date(s.syncedAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`);
-  if (s.error) parts.push(`ผิดพลาด: ${s.error.slice(0, 80)}`);
-  if (s.settings.account && s.email && s.email.toLowerCase() !== s.settings.account.toLowerCase()) {
-    parts.push(`⚠ ไม่ใช่บัญชี ${s.settings.account}`);
-  }
+  const failed = s.accounts.filter((a) => a.error);
+  if (failed.length) parts.push(`⚠ ซิงก์ไม่สำเร็จ: ${failed.map((a) => a.email).join(', ')}`);
   $('status').textContent = parts.join(' · ');
+  if (!$('settings').classList.contains('hidden')) renderAccounts();
 
   const list = $('list');
   list.replaceChildren();
@@ -82,14 +108,22 @@ function render(s) {
   $('btn-clear').classList.toggle('hidden', !done.length);
 }
 
+function renderAccounts() {
+  $('account-list').replaceChildren(...current.accounts.map((a) => el('div', { class: 'account' },
+    el('div', {},
+      el('div', { class: 'email' }, a.email),
+      a.error ? el('div', { class: 'err' }, a.error.slice(0, 120)) : null),
+    current.demo ? null : el('button', { onclick: () => window.todo.signOut(a.email) }, 'ออก'))));
+  $('btn-add-account').classList.toggle('hidden', current.demo);
+}
+
 function fillSettings() {
   const st = current.settings;
-  $('set-account').value = st.account;
+  renderAccounts();
   $('set-query').value = st.gmailQuery;
   $('set-calendars').value = st.calendarIds.join(', ');
   $('set-days').value = st.days;
   $('set-ontop').checked = st.alwaysOnTop;
-  $('btn-signout').classList.toggle('hidden', !current.signedIn || current.demo);
 }
 
 $('btn-settings').onclick = () => {
@@ -99,7 +133,6 @@ $('btn-settings').onclick = () => {
 };
 $('btn-save').onclick = async () => {
   await window.todo.saveSettings({
-    account: $('set-account').value.trim(),
     gmailQuery: $('set-query').value.trim(),
     calendarIds: $('set-calendars').value.split(',').map((x) => x.trim()).filter(Boolean),
     days: Number($('set-days').value) || 7,
@@ -107,17 +140,7 @@ $('btn-save').onclick = async () => {
   });
   $('settings').classList.add('hidden');
 };
-$('btn-signout').onclick = () => window.todo.signOut();
-$('btn-signin').onclick = async () => {
-  $('btn-signin').disabled = true;
-  try {
-    await window.todo.signIn();
-  } catch (err) {
-    $('status').textContent = `เข้าสู่ระบบไม่สำเร็จ: ${err.message}`;
-  } finally {
-    $('btn-signin').disabled = false;
-  }
-};
+$('btn-add-account').onclick = () => signIn('', $('btn-add-account'));
 $('btn-sync').onclick = () => window.todo.sync();
 $('btn-quit').onclick = () => window.todo.quit();
 $('btn-clear').onclick = () => window.todo.clearDone();

@@ -10,18 +10,19 @@ const SYNC_EVERY_MS = 10 * 60 * 1000;
 
 const DEFAULT_STATE = {
   settings: {
-    account: '',
+    // Accounts the user wants in the widget; each gets a sign-in button.
+    accounts: ['nakorn@the-annapolis.com', 'joke.nakorn22@gmail.com'],
     gmailQuery: 'in:inbox (is:starred OR (is:unread newer_than:7d))',
     calendarIds: ['primary'],
     days: 7,
     alwaysOnTop: true,
   },
-  tokens: null,
-  email: null,
+  // Signed-in Google accounts: [{ email, tokens, calendar, gmail, error }]
+  accounts: [],
   manual: [],
   done: {},
   hidden: {},
-  synced: { calendar: [], gmail: [], at: null, error: null },
+  syncedAt: null,
 };
 
 let win;
@@ -34,7 +35,14 @@ function statePath() {
 function loadState() {
   try {
     const saved = JSON.parse(fs.readFileSync(statePath(), 'utf8'));
-    return { ...DEFAULT_STATE, ...saved, settings: { ...DEFAULT_STATE.settings, ...saved.settings } };
+    const loaded = { ...DEFAULT_STATE, ...saved, settings: { ...DEFAULT_STATE.settings, ...saved.settings } };
+    // Earlier versions stored a single account at the top level.
+    if (saved.tokens && saved.email) loaded.accounts = [{ email: saved.email, tokens: saved.tokens }];
+    delete loaded.tokens;
+    delete loaded.email;
+    delete loaded.synced;
+    delete loaded.settings.account;
+    return loaded;
   } catch {
     return structuredClone(DEFAULT_STATE);
   }
@@ -54,18 +62,30 @@ function credentialsPath() {
   return candidates.find((p) => fs.existsSync(p)) || candidates[0];
 }
 
+function sameEmail(a, b) {
+  return a.toLowerCase() === b.toLowerCase();
+}
+
 function view() {
+  const signedIn = state.accounts.map((a) => a.email);
+  // Wanted accounts that are not signed in yet, so the UI can offer them.
+  const pending = state.settings.accounts.filter((e) => !signedIn.some((s) => sameEmail(s, e)));
   return {
     demo: DEMO,
-    signedIn: DEMO || Boolean(state.tokens),
-    email: DEMO ? 'demo@example.com' : state.email,
+    signedIn: state.accounts.length > 0,
+    accounts: state.accounts.map((a) => ({ email: a.email, error: a.error || null })),
+    pending,
     hasCredentials: DEMO || Boolean(google.loadClient(credentialsPath())),
     credentialsPath: credentialsPath(),
     settings: state.settings,
-    syncedAt: state.synced.at,
-    error: state.synced.error,
-    tasks: mergeTasks({ ...state.synced, manual: state.manual, done: state.done, hidden: state.hidden })
-      .map((t) => ({ ...t, bucket: bucket(t) })),
+    syncedAt: state.syncedAt,
+    tasks: mergeTasks({
+      calendar: state.accounts.flatMap((a) => a.calendar || []),
+      gmail: state.accounts.flatMap((a) => a.gmail || []),
+      manual: state.manual,
+      done: state.done,
+      hidden: state.hidden,
+    }).map((t) => ({ ...t, bucket: bucket(t) })),
   };
 }
 
@@ -73,29 +93,33 @@ function push() {
   if (win && !win.isDestroyed()) win.webContents.send('state', view());
 }
 
+async function syncAccount(client, account) {
+  try {
+    account.tokens = await google.freshTokens(client, account.tokens);
+    const { calendarIds, days, gmailQuery } = state.settings;
+    const [events, messages] = await Promise.all([
+      google.fetchEvents(account.tokens, { calendarIds, days }),
+      google.fetchMessages(account.tokens, { query: gmailQuery }),
+    ]);
+    account.calendar = events.map((e) => eventToTask(e, account.email));
+    account.gmail = messages.map((m) => messageToTask(m, account.email));
+    account.error = null;
+  } catch (err) {
+    // Keep the last good items so one failing account doesn't empty the list.
+    account.error = err.message;
+  }
+}
+
 async function sync() {
   if (DEMO) {
-    state.synced = { ...demo.data(), at: new Date().toISOString(), error: null };
+    state.accounts = demo.data();
+    state.syncedAt = new Date().toISOString();
     return push();
   }
   const client = google.loadClient(credentialsPath());
-  if (!client || !state.tokens) return push();
-  try {
-    state.tokens = await google.freshTokens(client, state.tokens);
-    const { calendarIds, days, gmailQuery } = state.settings;
-    const [events, messages] = await Promise.all([
-      google.fetchEvents(state.tokens, { calendarIds, days }),
-      google.fetchMessages(state.tokens, { query: gmailQuery }),
-    ]);
-    state.synced = {
-      calendar: events.map(eventToTask),
-      gmail: messages.map(messageToTask),
-      at: new Date().toISOString(),
-      error: null,
-    };
-  } catch (err) {
-    state.synced.error = err.message;
-  }
+  if (!client || !state.accounts.length) return push();
+  await Promise.all(state.accounts.map((a) => syncAccount(client, a)));
+  state.syncedAt = new Date().toISOString();
   saveState();
   push();
 }
@@ -129,19 +153,23 @@ function createWindow() {
 
 ipcMain.handle('get-state', () => view());
 
-ipcMain.handle('sign-in', async () => {
+// Adds (or re-authorizes) one Google account. `hint` pre-selects it in Google's picker.
+ipcMain.handle('sign-in', async (_e, hint) => {
   const client = google.loadClient(credentialsPath());
   if (!client) throw new Error('credentials.json not found');
-  state.tokens = await google.signIn(client, state.settings.account);
-  state.email = await google.userEmail(state.tokens);
+  const tokens = await google.signIn(client, hint);
+  const email = await google.userEmail(tokens);
+  const existing = state.accounts.find((a) => sameEmail(a.email, email));
+  if (existing) existing.tokens = tokens;
+  else state.accounts.push({ email, tokens });
+  if (!state.settings.accounts.some((e) => sameEmail(e, email))) state.settings.accounts.push(email);
   saveState();
   await sync();
 });
 
-ipcMain.handle('sign-out', () => {
-  state.tokens = null;
-  state.email = null;
-  state.synced = structuredClone(DEFAULT_STATE.synced);
+ipcMain.handle('sign-out', (_e, email) => {
+  state.accounts = state.accounts.filter((a) => !sameEmail(a.email, email));
+  state.settings.accounts = state.settings.accounts.filter((e) => !sameEmail(e, email));
   saveState();
   push();
 });
