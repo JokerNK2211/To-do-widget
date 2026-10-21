@@ -130,3 +130,4 @@ main { flex: 1; overflow-y: auto; padding: 0 6px 6px; }
 footer { padding: 6px 12px 10px; border-top: 1px solid var(--line); }
 button.link { border: 0; background: none; color: var(--muted); cursor: pointer; font: inherit; font-size: 11px; padding: 0; }
 button.link:hover { color: var(--fg); }
+button:disabled { opacity: 0.5; cursor: default; }

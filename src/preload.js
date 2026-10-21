@@ -11,5 +11,6 @@ contextBridge.exposeInMainWorld('todo', {
   removeTask: (id) => ipcRenderer.invoke('remove-task', id),
   clearDone: () => ipcRenderer.invoke('clear-done'),
   saveSettings: (s) => ipcRenderer.invoke('save-settings', s),
+  pickCredentials: () => ipcRenderer.invoke('pick-credentials'),
   quit: () => ipcRenderer.invoke('quit'),
 });

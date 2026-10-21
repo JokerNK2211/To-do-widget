@@ -17,9 +17,13 @@ const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
 function loadClient(credentialsPath) {
   if (!fs.existsSync(credentialsPath)) return null;
-  const raw = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
-  const c = raw.installed || raw.web || raw;
-  return { clientId: c.client_id, clientSecret: c.client_secret };
+  try {
+    const raw = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
+    const c = raw.installed || raw.web || raw;
+    return c.client_id ? { clientId: c.client_id, clientSecret: c.client_secret } : null;
+  } catch {
+    return null;
+  }
 }
 
 function base64url(buf) {

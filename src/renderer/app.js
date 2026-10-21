@@ -74,7 +74,7 @@ function render(s) {
   const pending = s.demo ? [] : s.pending;
   $('signin').classList.toggle('hidden', s.signedIn && !pending.length);
   $('no-creds').classList.toggle('hidden', s.hasCredentials);
-  $('creds-path').textContent = s.credentialsPath;
+  $('btn-pick-creds').classList.toggle('hidden', s.hasCredentials);
   const buttons = pending.length ? pending : [''];
   $('signin-buttons').replaceChildren(...buttons.map((email) => {
     const b = el('button', { class: 'primary' }, email ? `เข้าสู่ระบบ ${email}` : 'เข้าสู่ระบบด้วย Google');
@@ -124,6 +124,7 @@ function fillSettings() {
   $('set-calendars').value = st.calendarIds.join(', ');
   $('set-days').value = st.days;
   $('set-ontop').checked = st.alwaysOnTop;
+  $('set-login').checked = st.openAtLogin;
 }
 
 $('btn-settings').onclick = () => {
@@ -137,8 +138,16 @@ $('btn-save').onclick = async () => {
     calendarIds: $('set-calendars').value.split(',').map((x) => x.trim()).filter(Boolean),
     days: Number($('set-days').value) || 7,
     alwaysOnTop: $('set-ontop').checked,
+    openAtLogin: $('set-login').checked,
   });
   $('settings').classList.add('hidden');
+};
+$('btn-pick-creds').onclick = async () => {
+  try {
+    await window.todo.pickCredentials();
+  } catch (err) {
+    $('status').textContent = err.message;
+  }
 };
 $('btn-add-account').onclick = () => signIn('', $('btn-add-account'));
 $('btn-sync').onclick = () => window.todo.sync();

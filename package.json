@@ -6,10 +6,35 @@
   "scripts": {
     "start": "electron .",
     "demo": "electron . --demo",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "dist:win": "electron-builder --win nsis"
   },
   "license": "MIT",
   "devDependencies": {
-    "electron": "^33.2.0"
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "productName": "To-do Widget",
+  "author": "Nakorn Gurdsomboon",
+  "build": {
+    "appId": "com.jokernk2211.todowidget",
+    "productName": "To-do Widget",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "To-do Widget",
+      "runAfterFinish": true
+    }
   }
 }

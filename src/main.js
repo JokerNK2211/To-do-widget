@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, shell } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, screen, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const google = require('./google');
@@ -16,6 +16,7 @@ const DEFAULT_STATE = {
     calendarIds: ['primary'],
     days: 7,
     alwaysOnTop: true,
+    openAtLogin: true,
   },
   // Signed-in Google accounts: [{ email, tokens, calendar, gmail, error }]
   accounts: [],
@@ -220,14 +221,40 @@ ipcMain.handle('clear-done', () => {
 ipcMain.handle('save-settings', async (_e, settings) => {
   state.settings = { ...state.settings, ...settings };
   win.setAlwaysOnTop(state.settings.alwaysOnTop);
+  applyLoginItem();
   saveState();
   await sync();
 });
 
+// Copies the user's chosen OAuth client file into the user-data folder,
+// so the installed app finds it without the user locating that folder.
+ipcMain.handle('pick-credentials', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    title: 'เลือกไฟล์ credentials.json',
+    filters: [{ name: 'JSON', extensions: ['json'] }],
+    properties: ['openFile'],
+  });
+  if (canceled || !filePaths.length) return;
+  const target = path.join(app.getPath('userData'), 'credentials.json');
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.copyFileSync(filePaths[0], target);
+  if (!google.loadClient(target)?.clientId) {
+    fs.rmSync(target);
+    throw new Error('ไฟล์นี้ไม่ใช่ OAuth client ของ Google');
+  }
+  push();
+});
+
 ipcMain.handle('quit', () => app.quit());
+
+// Start with Windows/macOS login; only for the installed app, not `npm start`.
+function applyLoginItem() {
+  if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: state.settings.openAtLogin });
+}
 
 app.whenReady().then(() => {
   state = loadState();
+  applyLoginItem();
   createWindow();
   sync();
   setInterval(sync, SYNC_EVERY_MS);

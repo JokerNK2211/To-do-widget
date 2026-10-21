@@ -23,9 +23,9 @@
     <section id="signin" class="panel hidden">
       <p>เชื่อมต่อบัญชี Google เพื่อดึงนัดหมายจากปฏิทินและอีเมลมาเป็นงาน</p>
       <p id="no-creds" class="muted hidden">
-        ยังไม่พบไฟล์ credentials.json ดูวิธีตั้งค่าใน README<br>
-        <code id="creds-path"></code>
+        ยังไม่มีไฟล์ credentials.json (วิธีสร้างอยู่ใน README)
       </p>
+      <button id="btn-pick-creds" class="hidden">เลือกไฟล์ credentials.json…</button>
       <div id="signin-buttons" class="stack"></div>
     </section>
 
@@ -44,6 +44,7 @@
         <input id="set-days" type="number" min="1" max="60">
       </label>
       <label class="row"><input id="set-ontop" type="checkbox"> แสดงอยู่บนสุดเสมอ</label>
+      <label class="row"><input id="set-login" type="checkbox"> เปิดอัตโนมัติเมื่อเข้าเครื่อง</label>
       <div class="row">
         <button id="btn-save" class="primary">บันทึก</button>
       </div>

@@ -17,6 +17,17 @@ A small always-on-top desktop widget (Electron) that turns Google Calendar event
 - ซิงก์อัตโนมัติทุก 10 นาที, แสดงอยู่บนสุดเสมอ (ปิดได้)
 - อ่านข้อมูล Google แบบ read-only เท่านั้น ไม่แก้ไขปฏิทินหรืออีเมล
 
+## ติดตั้งบน Windows / Install on Windows
+
+1. ดับเบิลคลิก `To-do Widget Setup 0.1.0.exe` (ถ้า Windows ขึ้นหน้าจอ SmartScreen เพราะตัวติดตั้งยังไม่ได้ลงลายเซ็น ให้กด **More info → Run anyway**)
+2. วิดเจ็ตจะเปิดที่มุมขวาบนของจอ และเปิดเองทุกครั้งที่เข้าเครื่อง (ปิดได้ใน ⚙)
+3. กด **เลือกไฟล์ credentials.json…** แล้วเลือกไฟล์ที่ดาวน์โหลดจาก Google Cloud (ดูหัวข้อด้านล่าง)
+4. กดเข้าสู่ระบบทีละบัญชี
+
+ถอนการติดตั้งได้จาก Settings → Apps → Installed apps → To-do Widget
+
+Build the installer yourself with `npm run dist:win` (on Linux this needs Wine). Output goes to `dist/`.
+
 ## Try it without Google (demo mode)
 
 ```bash
@@ -32,8 +43,8 @@ The app signs in with your own Google Cloud OAuth client, so your data goes stra
 2. **APIs & Services → Library**: enable **Google Calendar API** and **Gmail API**.
 3. **APIs & Services → OAuth consent screen**: choose *External* (so both the Workspace and the Gmail account can sign in), fill in the app name, and add every account you will use under **Test users**.
 4. **APIs & Services → Credentials → Create credentials → OAuth client ID**, application type **Desktop app**. Download the JSON.
-5. Save it as `credentials.json` in this folder (or in the app's user-data folder; the widget shows the exact path).
-6. `npm start`. The widget shows a **เข้าสู่ระบบ …** button for each account in the list; click each one and approve in the browser.
+5. In the widget, click **เลือกไฟล์ credentials.json…** and pick the downloaded file. (When running from source you can also save it as `credentials.json` in this folder.)
+6. The widget shows a **เข้าสู่ระบบ …** button for each account in the list; click each one and approve in the browser.
 
 Every signed-in account is synced and merged into one list. Add more accounts with **+ เพิ่มบัญชี** in ⚙ settings, or remove one with **ออก**. If one account fails to sync, its last items stay and the others keep working.
 
@@ -46,6 +57,7 @@ Every signed-in account is synced and merged into one list. Add more accounts wi
 | Calendars | `primary` (comma-separated calendar IDs, applied to every account) |
 | Days ahead | 7 |
 | Always on top | on |
+| Start at login | on (installed app only) |
 
 Local state (tokens, your tasks, done/hidden items) is stored in `state.json` in Electron's user-data folder.
 
