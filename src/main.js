@@ -8,11 +8,21 @@ const demo = require('./demo');
 const DEMO = process.argv.includes('--demo');
 const SYNC_EVERY_MS = 10 * 60 * 1000;
 
+// Mail counts as a task only when it is addressed to or names the user AND is
+// about a meeting or appointment. Promotions/social/forums tabs are skipped.
+const MEETING_QUERY = [
+  'in:inbox newer_than:14d -category:promotions -category:social -category:forums',
+  '(to:me OR Nakorn OR นคร)',
+  '(ประชุม OR นัด OR นัดหมาย OR meeting OR appointment OR invitation OR invite OR schedule OR call)',
+].join(' ');
+// Earlier default; installs that never changed it move to MEETING_QUERY.
+const OLD_DEFAULT_QUERY = 'in:inbox (is:starred OR (is:unread newer_than:7d))';
+
 const DEFAULT_STATE = {
   settings: {
     // Accounts the user wants in the widget; each gets a sign-in button.
     accounts: ['nakorn@the-annapolis.com', 'joke.nakorn22@gmail.com'],
-    gmailQuery: 'in:inbox (is:starred OR (is:unread newer_than:7d))',
+    gmailQuery: MEETING_QUERY,
     calendarIds: ['primary'],
     days: 7,
     alwaysOnTop: true,
@@ -43,6 +53,7 @@ function loadState() {
     delete loaded.email;
     delete loaded.synced;
     delete loaded.settings.account;
+    if (loaded.settings.gmailQuery === OLD_DEFAULT_QUERY) loaded.settings.gmailQuery = MEETING_QUERY;
     return loaded;
   } catch {
     return structuredClone(DEFAULT_STATE);

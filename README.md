@@ -9,7 +9,7 @@ A small always-on-top desktop widget (Electron) that turns Google Calendar event
 ## Features
 
 - งานจาก **ปฏิทิน**: นัดหมายตั้งแต่วันนี้ถึง 7 วันข้างหน้า (ปรับได้) จากปฏิทินที่เลือก
-- งานจาก **อีเมล**: อีเมลที่ติดดาว หรือยังไม่อ่านในกล่องจดหมายภายใน 7 วัน (ปรับคำค้น Gmail ได้)
+- งานจาก **อีเมล**: เฉพาะอีเมลที่ส่งถึงคุณโดยตรงหรือเอ่ยชื่อคุณ และเป็นเรื่องนัดหมาย/ประชุม ภายใน 14 วัน (ปรับคำค้น Gmail ได้)
 - **เพิ่มงานเอง** พร้อมวันครบกำหนด
 - จัดกลุ่ม: เลยกำหนด / วันนี้ / พรุ่งนี้ / ถัดไป / จากอีเมล
 - **หลายบัญชี Google**: รวมงานจากทุกบัญชีไว้ในรายการเดียว (ค่าเริ่มต้น: `nakorn@the-annapolis.com` และ `joke.nakorn22@gmail.com`) แต่ละรายการมีป้ายบอกว่ามาจากบัญชีไหน
@@ -19,7 +19,7 @@ A small always-on-top desktop widget (Electron) that turns Google Calendar event
 
 ## ติดตั้งบน Windows / Install on Windows
 
-1. ดับเบิลคลิก `To-do Widget Setup 0.1.4.exe` (ถ้า Windows ขึ้นหน้าจอ SmartScreen เพราะตัวติดตั้งยังไม่ได้ลงลายเซ็น ให้กด **More info → Run anyway**)
+1. ดับเบิลคลิก `To-do Widget Setup 0.1.5.exe` (ถ้า Windows ขึ้นหน้าจอ SmartScreen เพราะตัวติดตั้งยังไม่ได้ลงลายเซ็น ให้กด **More info → Run anyway**)
 2. วิดเจ็ตจะเปิดที่มุมขวาบนของจอ และเปิดเองทุกครั้งที่เข้าเครื่อง (ปิดได้ใน ⚙)
 3. กด **เลือกไฟล์ credentials.json…** แล้วเลือกไฟล์ที่ดาวน์โหลดจาก Google Cloud (ดูหัวข้อด้านล่าง)
 4. กดเข้าสู่ระบบทีละบัญชี
@@ -53,7 +53,7 @@ Every signed-in account is synced and merged into one list. Add more accounts wi
 | Setting | Default |
 | --- | --- |
 | Accounts | `nakorn@the-annapolis.com`, `joke.nakorn22@gmail.com` |
-| Gmail query | `in:inbox (is:starred OR (is:unread newer_than:7d))` |
+| Gmail query | `in:inbox newer_than:14d -category:promotions -category:social -category:forums (to:me OR Nakorn OR นคร) (ประชุม OR นัด OR นัดหมาย OR meeting OR appointment OR invitation OR invite OR schedule OR call)` |
 | Calendars | `primary` (comma-separated calendar IDs, applied to every account) |
 | Days ahead | 7 |
 | Always on top | on |

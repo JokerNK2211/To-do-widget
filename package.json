@@ -1,6 +1,6 @@
 {
   "name": "to-do-widget",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Desktop to-do widget that turns Google Calendar events and Gmail messages into tasks",
   "main": "src/main.js",
   "scripts": {
