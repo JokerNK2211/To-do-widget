@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'">
+  <title>To-do</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card">
+    <header class="drag">
+      <div>
+        <h1>สิ่งที่ต้องทำ</h1>
+        <div id="status" class="muted"></div>
+      </div>
+      <div class="actions no-drag">
+        <button id="btn-sync" title="ซิงก์ / Sync">⟳</button>
+        <button id="btn-settings" title="ตั้งค่า / Settings">⚙</button>
+        <button id="btn-quit" title="ปิด / Quit">✕</button>
+      </div>
+    </header>
+
+    <section id="signin" class="panel hidden">
+      <p>เชื่อมต่อบัญชี Google เพื่อดึงนัดหมายจากปฏิทินและอีเมลมาเป็นงาน</p>
+      <p id="no-creds" class="muted hidden">
+        ยังไม่มีไฟล์ credentials.json (วิธีสร้างอยู่ใน README)
+      </p>
+      <button id="btn-pick-creds" class="hidden">เลือกไฟล์ credentials.json…</button>
+      <div id="signin-buttons" class="stack"></div>
+    </section>
+
+    <section id="settings" class="panel hidden">
+      <div class="field">บัญชี Google
+        <div id="account-list" class="stack"></div>
+        <button id="btn-add-account">+ เพิ่มบัญชี</button>
+      </div>
+      <label>คำค้น Gmail ที่นับเป็นงาน
+        <input id="set-query" type="text">
+      </label>
+      <label>ปฏิทิน (คั่นด้วย ,)
+        <input id="set-calendars" type="text">
+      </label>
+      <label>ดูล่วงหน้า (วัน)
+        <input id="set-days" type="number" min="1" max="60">
+      </label>
+      <label class="row"><input id="set-ontop" type="checkbox"> แสดงอยู่บนสุดเสมอ</label>
+      <label class="row"><input id="set-login" type="checkbox"> เปิดอัตโนมัติเมื่อเข้าเครื่อง</label>
+      <div class="row">
+        <button id="btn-save" class="primary">บันทึก</button>
+      </div>
+    </section>
+
+    <main id="list"></main>
+
+    <footer>
+      <button id="btn-new" class="fab" title="เพิ่มงานใหม่">+</button>
+      <button id="btn-clear" class="link">ล้างงานที่เสร็จแล้ว</button>
+    </footer>
+
+    <div id="new-task" class="overlay hidden">
+      <form id="add" class="dialog no-drag">
+        <h2>งานใหม่</h2>
+        <label>ชื่องาน
+          <input id="add-title" type="text" placeholder="ต้องทำอะไร" autocomplete="off" required>
+        </label>
+        <label>วันครบกำหนด (ไม่ใส่ก็ได้)
+          <input id="add-due" type="date">
+        </label>
+        <div class="row end">
+          <button type="button" id="btn-cancel-new">ยกเลิก</button>
+          <button type="submit" class="primary">เพิ่มงาน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
